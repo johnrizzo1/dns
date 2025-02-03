@@ -1,0 +1,61 @@
+version: "2.1"
+services:
+  blocky:
+    image: spx01/blocky
+    container_name: blocky
+    restart: unless-stopped
+    # Optional the instance hostname for logging purpose
+    # hostname: dns
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "4000:4000/tcp"
+    # environment:
+      # - TZ=Europe/Berlin # Optional to synchronize the log timestamp with host
+    volumes:
+      # Optional to synchronize the log timestamp with host
+      - /etc/localtime:/etc/localtime:ro
+      # config file
+      # - ./config.yml:/app/config.yml:ro
+    configs:
+      - source: blocky
+        target: /app/config.yml:ro
+    network_mode: service:tailscale
+
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: dns-tailscale
+    hostname: dns.warthog-trout.ts.net
+    restart: unless-stopped
+    # dns:
+    #   - 192.168.2.124
+    volumes:
+      - tailscale:/var/lib/tailscale
+    environment:
+      TS_AUTHKEY: ${TS_AUTHKEY}
+      TS_HOSTNAME: dns
+      TS_STATE_DIR: /var/lib/tailscale
+
+volumes:
+  tailscale:
+
+configs:
+  blocky:
+    content: |
+      upstreams:
+        groups:
+          default:
+            - 8.8.8.8
+            - 4.4.4.4
+            - tcp-tls:fdns1.dismail.de:853
+            - https://dns.digitale-gesellschaft.ch/dns-query
+      blocking:
+        denylists:
+          ads:
+            - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+        clientGroupsBlock:
+          default:
+            - ads
+      ports:
+        dns: 53
+        http: 4000

@@ -18,7 +18,7 @@ services:
       # - ./config.yml:/app/config.yml:ro
     configs:
       - source: blocky
-        target: /app/config.yml:ro
+        target: /app/config.yml
     network_mode: service:tailscale
 
   tailscale:

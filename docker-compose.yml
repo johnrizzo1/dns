@@ -20,8 +20,8 @@ services:
       WEBPASSWORD: ${WEBPASSWORD}
       DNSMASQ_USER: root
     volumes:
-      - pihole:/etc/pihole
-      - pihole:/etc/dnsmasq.d
+      - pihole_etc:/etc/pihole
+      - pihole_dnsmasq:/etc/dnsmasq.d
     cap_add:
       - NET_ADMIN
     restart: unless-stopped
@@ -43,7 +43,8 @@ services:
 
 volumes:
   ts-blocky:
-  pihole:
+  pihole_etc:
+  pihole_dnsmasq:
 
 configs:
   blocky:

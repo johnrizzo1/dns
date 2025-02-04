@@ -50,6 +50,7 @@ services:
 
 volumes:
   ts-blocky:
+  pihole:
 
 configs:
   blocky:

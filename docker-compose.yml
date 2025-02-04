@@ -1,21 +1,45 @@
 services:
-  blocky:
-    image: spx01/blocky
-    container_name: blocky
-    restart: unless-stopped
+  # blocky:
+    # image: spx01/blocky
+    # container_name: blocky
+    # restart: unless-stopped
+    # environment:
+      # - TZ=America/New_York
+    # volumes:
+      # - /etc/localtime:/etc/localtime:ro
+    # configs:
+      # - source: blocky
+        # target: /app/config.yml
+    # network_mode: service:ts-blocky
+  
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    # For DHCP it is recommended to remove these ports and instead add: network_mode: "host"
+    # ports:
+      # - "53:53/tcp"
+      # - "53:53/udp"
+      # - "67:67/udp" # Only required if you are using Pi-hole as your DHCP server
+      # - "80:80/tcp"
     environment:
-      - TZ=America/New_York
+      TZ: 'America/New_York'
+      WEBPASSWORD: ${WEBPASSWORD}
+    # Volumes store your data between container upgrades
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-    configs:
-      - source: blocky
-        target: /app/config.yml
+      - pihole/etc-pihole:/etc/pihole
+      - pihole/etc-dnsmasq.d:/etc/dnsmasq.d
+    #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
     network_mode: service:ts-blocky
 
   ts-blocky:
     image: tailscale/tailscale:latest
     container_name: ts-blocky
     hostname: dns.warthog-trout.ts.net
+    cap_add:
+      - NET_ADMIN
     restart: unless-stopped
     volumes:
       - ts-blocky:/var/lib/tailscale
